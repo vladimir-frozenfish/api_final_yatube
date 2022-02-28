@@ -3,7 +3,7 @@ from rest_framework import routers
 
 from django.urls import path, include
 
-from .views import CommentViewSet, GroupViewSet, PostViewSet
+from .views import CommentViewSet, FollowViewSet, GroupViewSet, PostViewSet
 
 app_name = 'api'
 
@@ -13,6 +13,7 @@ router.register('groups', GroupViewSet)
 router.register(
     r'posts/(?P<post_id>\d+)/comments', CommentViewSet, basename='comments'
 )
+router.register('follow', FollowViewSet, basename='follow')
 
 
 urlpatterns = [
