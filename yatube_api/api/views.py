@@ -1,9 +1,12 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, viewsets, permissions
+from django.core.exceptions import ObjectDoesNotExist
+
+from rest_framework import filters, viewsets, permissions, status
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.response import Response
 
 
-from posts.models import Follow, Group, Post
+from posts.models import Follow, Group, Post, User
 
 from .serializers import (CommentSerializer,
                           FollowSerializer,
@@ -58,12 +61,46 @@ class FollowViewSet(viewsets.ModelViewSet):
         new_queryset = Follow.objects.filter(user=self.request.user.id)
         return new_queryset
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        # serializer = self.get_serializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        # self.perform_create(serializer)
+        # headers = self.get_success_headers(serializer.data)
+        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        user = self.request.user
+        try:
+            following = User.objects.get(username=request.data.get('following'))
+            if user == following:
+                return Response({"message": "На себя нельзя подписаться!"}, status=status.HTTP_400_BAD_REQUEST)
+            if following.following.filter(user=user).exists():
+                return Response({"message": "На этого автора уже есть подписка!"}, status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist:
+            # following = None
+            return Response({"message": "Неправильные данные!"}, status=status.HTTP_400_BAD_REQUEST)
+        data = {
+            "user": user,
+            "following": following,
+        }
+        serializer = FollowSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(user=user, following=following)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+        # return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
     '''
     def perform_create(self, serializer):
-        following_id = self.kwargs.get("post_id")
-        post = get_object_or_404(Post, id=post_id)
-        serializer.save(user=self.request.user, following=post)
+        # following = get_object_or_404(User, username=self.request.data.get('following'))
+        try:
+            following = User.objects.get(username=self.request.data.get('following'))
+            serializer.save(user=self.request.user, following=following)
+        except ObjectDoesNotExist:
+            following = None
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     '''
+
+
+
