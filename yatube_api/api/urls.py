@@ -1,7 +1,6 @@
-from rest_framework import routers
-# from rest_framework.authtoken import views
-
 from django.urls import path, include
+
+from rest_framework import routers
 
 from .views import CommentViewSet, FollowViewSet, GroupViewSet, PostViewSet
 
@@ -20,5 +19,4 @@ urlpatterns = [
     path('v1/', include(router.urls)),
     path('v1/', include('djoser.urls')),
     path('v1/', include('djoser.urls.jwt')),
-    # path('v1/api-token-auth/', views.obtain_auth_token)
 ]
