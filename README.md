@@ -1,5 +1,5 @@
-# api_final
-api final
+## api_final
+Реализация API для сети блогов Yatube
 
 ### Как запустить проект:
 
@@ -9,9 +9,6 @@ api final
 git clone https://github.com/.../
 ```
 
-```
-cd ...
-```
 
 Cоздать и активировать виртуальное окружение:
 
